@@ -4,6 +4,10 @@ import sqlite3
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
+class MovieInput(BaseModel):
+    title: str
+    genres: str
+
 app = FastAPI()
 
 app.add_middleware(
@@ -52,6 +56,14 @@ async def ratings(movieId: int):
 
     return {"status": "success", "ratings": formattedRatings}
 
-
+@router.post("/movies")
+async def addMovies(movie: MovieInput):
+    conn = sqlite3.connect('movielens.db')
+    cursor = conn.cursor()
+    cursor.execute('insert into movies (title, genres) values (?, ?)', (movie.title, movie.genres))
+    conn.commit()
+    newId = cursor.lastrowid
+    conn.close()
+    return {"status": "success", "movieId": newId}
 
 app.include_router(router)
