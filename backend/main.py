@@ -15,6 +15,23 @@ app.add_middleware(
 )
 router = APIRouter(prefix="/movielens/api")
 
+@router.get("/movies")
+async def search_title(search:str):
+    conn = sqlite3.connect('movielens.db')
+    cursor = conn.cursor()
+    searchTerm = f"%{search}%"
+    cursor.execute('select * from movies where title like ?', (searchTerm,))
+    titles = cursor.fetchall()
+    conn.close()
+    formattedTitle = []
+    for row in titles:
+        singleTitles = {
+            "movieId": row[0],
+            "title": row[1]
+        }
+        formattedTitle.append(singleTitles)
+    return {"status": "success", "movies": formattedTitle}
+
 @router.get("/ratings/{movieId}")
 async def ratings(movieId: int):
     conn = sqlite3.connect('movielens.db')
@@ -35,21 +52,6 @@ async def ratings(movieId: int):
 
     return {"status": "success", "ratings": formattedRatings}
 
-@router.get("/movies")
-async def search_title(search:str):
-    conn = sqlite3.connect('movielens.db')
-    cursor = conn.cursor()
-    searchTerm = f"%{search}%"
-    cursor.execute('select * from movies where title like ?', (searchTerm,))
-    titles = cursor.fetchall()
-    conn.close()
-    formattedTitle = []
-    for row in titles:
-        singleTitles = {
-            "movieId": row[0],
-            "title": row[1]
-        }
-        formattedTitle.append(singleTitles)
-    return {"status": "success", "movies": formattedTitle}
+
 
 app.include_router(router)
