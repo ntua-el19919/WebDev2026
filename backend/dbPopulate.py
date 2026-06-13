@@ -68,6 +68,8 @@ with open('tags.csv', 'r', encoding='utf-8') as file:
 
 # Αποθήκευση των αλλαγών και κλείσιμο
 conn.commit()
+cursor.execute('CREATE INDEX IF NOT EXISTS idx_ratings_userId ON ratings(userId)')
+cursor.execute('CREATE INDEX IF NOT EXISTS idx_ratings_movieId ON ratings(movieId)')
 conn.close()
 
 print("Η βάση δημιουργήθηκε επιτυχώς!")

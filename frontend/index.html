@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MovieLens Recommendations App</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <header>
+        <h1>Σύστημα Προτάσεων Ταινιών MovieLens</h1>
+    </header>
+
+    <main class="container">
+        <section class="card">
+            <h2>Προσθήκη Νέας Ταινίας</h2>
+            <form id="add-movie-form">
+                <div class="form-group">
+                    <label for="movie-title">Τίτλος Ταινίας:</label>
+                    <input type="text" id="movie-title" placeholder="e.g., Inception (2010)" required>
+                </div>
+                <div class="form-group">
+                    <label for="movie-genres">Κατηγορίες (Genres):</label>
+                    <input type="text" id="movie-genres" placeholder="e.g., Action|Sci-Fi|Thriller" required>
+                </div>
+                <button type="submit" class="btn">Προσθήκη Ταινίας</button>
+            </form>
+            <div id="add-movie-feedback" class="feedback"></div>
+        </section>
+
+        <section class="card">
+            <h2>Αναζήτηση & Βαθμολόγηση Ταινιών</h2>
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Εισάγετε λέξη-κλειδί για τίτλο...">
+                <button id="search-btn" class="btn">Αναζήτηση</button>
+            </div>
+            
+            <div id="search-results-container" class="results-table-container">
+                </div>
+        </section>
+
+        <section class="card">
+            <h2>Οι Βαθμολογήσεις σας (Τρέχον Session)</h2>
+            <div id="session-ratings-container">
+                <p class="placeholder-text">Δεν έχετε βαθμολογήσει κάποια ταινία ακόμα σε αυτό το session.</p>
+            </div>
+            <button id="get-recommendations-btn" class="btn btn-recommend" disabled>Λήψη Προσωποποιημένων Προτάσεων</button>
+        </section>
+
+        <section id="recommendations-section" class="card hidden">
+            <h2>Προτεινόμενες Ταινίες για Εσάς</h2>
+            <div id="recommendations-container" class="results-table-container">
+                </div>
+        </section>
+    </main>
+
+    <script src="index.js"></script>
+</body>
+</html>
