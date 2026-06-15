@@ -78,7 +78,8 @@ async def addMovies(movie: MovieInput):
 async def get_recommendations(req: RecommendationRequest):
     # 0. Προετοιμασία δεδομένων του τρέχοντος χρήστη (u)
     user_u_ratings = {r.movieId: r.rating for r in req.ratings}
-    
+    print(f"\n--- ΝΕΟ REQUEST ΣΥΣΤΑΣΕΩΝ ---")
+    print(f"[DEBUG 1] Βαθμολογίες session: {user_u_ratings}")
     if not user_u_ratings:
         return {"status": "success", "recommendations": []}
 
@@ -98,7 +99,7 @@ async def get_recommendations(req: RecommendationRequest):
     ''', movie_ids_u)
     
     overlapping_ratings = cursor.fetchall()
-    
+    print(f"[DEBUG 2] Βρέθηκαν {len(overlapping_ratings)} εγγραφές από άλλους χρήστες για αυτές τις ταινίες")
     # Ομαδοποίηση βαθμολογιών ανά χρήστη v
     users_v_data = {}
     for uid, mid, rating in overlapping_ratings:
@@ -145,6 +146,7 @@ async def get_recommendations(req: RecommendationRequest):
 
     # 3. Επιλογή top-K (π.χ. K=50) 
     similarities.sort(key=lambda x: x[1], reverse=True)
+    print(f"[DEBUG 3] Γείτονες που πέρασαν τα φίλτρα (κοινές ταινίες >= 2 ΚΑΙ sim > 0): {len(similarities)}")
     top_k_users = similarities[:50]
     top_k_dict = dict(top_k_users)
 
@@ -164,7 +166,7 @@ async def get_recommendations(req: RecommendationRequest):
     ''', top_k_ids)
     
     candidate_ratings = cursor.fetchall()
-    
+    print(f"[DEBUG 4] Βρέθηκαν {len(candidate_ratings)} υποψήφιες βαθμολογίες ταινιών από τους γείτονες")
     # Ομαδοποίηση ανά υποψήφια ταινία i
     predictions = []
     movies_i = {}
