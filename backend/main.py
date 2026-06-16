@@ -5,11 +5,16 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import math
 
+# ----------
+class TagSearchRequest(BaseModel):
+    search: str
+# ----------
+
 class MovieInput(BaseModel):
     title: str
     genres: str
 
-# --- Data Models για το Input ---
+# Data Models για το Input 
 class UserRating(BaseModel):
     movieId: int
     rating: float
@@ -73,6 +78,49 @@ async def addMovies(movie: MovieInput):
     newId = cursor.lastrowid
     conn.close()
     return {"status": "success", "movieId": newId}
+
+# ----------
+@router.post("/tags/movies")
+async def search_by_tag(req: TagSearchRequest):
+    conn = sqlite3.connect('movielens.db')
+    cursor = conn.cursor()
+    
+    keyword = req.search.lower()
+    
+    # Matching rule: fewer than 5 characters (exact match)
+    if len(keyword) < 5:
+        cursor.execute('''
+            SELECT m.movieId, m.title, m.genres, t.tag 
+            FROM movies m
+            JOIN tags t ON m.movieId = t.movieId
+            WHERE LOWER(t.tag) = ?
+            GROUP BY m.movieId
+        ''', (keyword,))
+    # Matching rule: at least 5 characters (prefix match)
+    else:
+        keyword_prefix = keyword[:5]
+        cursor.execute('''
+            SELECT m.movieId, m.title, m.genres, t.tag 
+            FROM movies m
+            JOIN tags t ON m.movieId = t.movieId
+            WHERE SUBSTR(LOWER(t.tag), 1, 5) = ?
+            GROUP BY m.movieId
+        ''', (keyword_prefix,))
+        
+    results = cursor.fetchall()
+    conn.close()
+    
+    movies_output = []
+    for row in results:
+        movies_output.append({
+            "movieId": row[0],
+            "title": row[1],
+            "genres": row[2],
+            "matchingTag": row[3]
+        })
+        
+    return {"status": "success", "movies": movies_output}
+# ----------
 
 @router.post("/recommendations")
 async def get_recommendations(req: RecommendationRequest):

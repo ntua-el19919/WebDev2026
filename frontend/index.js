@@ -253,3 +253,47 @@ function setupRecommendations() {
         }
     });
 }
+
+// ----------
+document.getElementById('tag-search-btn').addEventListener('click', async () => {
+    const keyword = document.getElementById('tag-search-input').value;
+    if (!keyword) return;
+
+    // Η εκφώνηση απαιτεί POST request για την αναζήτηση
+    const response = await fetch(`${API_BASE_URL}/tags/movies`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ search: keyword })
+    });
+
+    const data = await response.json();
+    const container = document.getElementById('tag-search-results-container');
+    
+    if (data.status === "success" && data.movies.length > 0) {
+        let tableHTML = `
+            <table>
+                <thead>
+                    <tr>
+                        <th>Τίτλος</th>
+                        <th>Είδος (Genres)</th>
+                        <th>Matching Tag</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        data.movies.forEach(movie => {
+            tableHTML += `
+                <tr>
+                    <td>${movie.title}</td>
+                    <td>${movie.genres}</td>
+                    <td><strong>${movie.matchingTag}</strong></td>
+                </tr>
+            `;
+        });
+        tableHTML += `</tbody></table>`;
+        container.innerHTML = tableHTML;
+    } else {
+        container.innerHTML = `<p>Δεν βρέθηκαν ταινίες για το tag "${keyword}".</p>`;
+    }
+});
+// ----------
